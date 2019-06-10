@@ -4,8 +4,11 @@
 set -m
 
 # start clam service itself and the updater in background as daemon
-freshclam -d &
 clamd &
+
+# wait 60 seconds so to give clamd time to be ready to receive the update
+sleep 60 && freshclam -d &
+
 
 # recognize PIDs
 pidlist=`jobs -p`
