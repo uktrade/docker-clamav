@@ -8,19 +8,18 @@ set -m
 clamd &
 
 # https://superuser.com/a/917073/66341
-# but using -s because clamd.ctl is zero bytes!
+# but using -S because clamd.ctl is a socket and -f doesn't work!
 wait_file() {
   local file="$1"; shift
   local wait_seconds="${1:-10}"; shift # 10 seconds as default timeout
 
   echo "Waiting $wait_seconds for $file"
 
-  until test $((wait_seconds--)) -eq 0 -o -e "$file" ; 
+  until test $((wait_seconds--)) -eq 0 -o -S "$file" ; 
   do
-    echo -n .
     sleep 1
   done
-
+  
   ((++wait_seconds))
 }
 
@@ -29,6 +28,7 @@ wait_file "$LOCKFILE" 60 || {
     >&2 echo "$LOCKFILE not found after waiting for 60 seconds. There may be issues with updating virus defs"
 }
 
+echo "Starting freshclam"
 freshclam -d &
 
 
