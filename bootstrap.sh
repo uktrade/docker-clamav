@@ -3,11 +3,33 @@
 # presented by mko (Markus Kosmal<dude@m-ko.de>)
 set -m
 
-# start clam service itself and the updater in background as daemon
+
+# start clam service in background
 clamd &
 
-# wait 60 seconds so to give clamd time to be ready to receive the update
-sleep 60 && freshclam -d &
+# https://superuser.com/a/917073/66341
+# but using -s because clamd.ctl is zero bytes!
+wait_file() {
+  local file="$1"; shift
+  local wait_seconds="${1:-10}"; shift # 10 seconds as default timeout
+
+  echo "Waiting $wait_seconds for $file"
+
+  until test $((wait_seconds--)) -eq 0 -o -e "$file" ; 
+  do
+    echo -n .
+    sleep 1
+  done
+
+  ((++wait_seconds))
+}
+
+LOCKFILE=/var/run/clamav/clamd.ctl
+wait_file "$LOCKFILE" 60 || {
+    >&2 echo "$LOCKFILE not found after waiting for 60 seconds. There may be issues with updating virus defs"
+}
+
+freshclam -d &
 
 
 # recognize PIDs
