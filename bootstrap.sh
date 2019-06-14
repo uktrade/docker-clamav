@@ -30,7 +30,6 @@ wait_file "$LOCKFILE" 60 || {
 echo "Starting freshclam"
 freshclam -d &
 
-
 # recognize PIDs
 pidlist=`jobs -p`
 
