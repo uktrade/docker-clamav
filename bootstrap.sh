@@ -3,7 +3,6 @@
 # presented by mko (Markus Kosmal<dude@m-ko.de>)
 set -m
 
-
 # start clam service in background
 clamd &
 
